@@ -141,3 +141,25 @@ export function unregister() {
             });
     }
 }
+
+export function listenForPushNotifications() {
+    if (!('serviceWorker' in navigator)) {
+        return;
+    }
+    window.addEventListener('push', event => {
+        console.log('push notification received', event);
+
+        let data = {
+            'title': 'New',
+            'text': 'Eish! notification received. but no data'
+        };
+        if (event.data) {
+            data = JSON.parse(event.data.text())
+        }
+
+        event.waitUntil(
+            window.registration.showNotification(
+                data.title, { body: data.text }
+            ));
+    })
+}

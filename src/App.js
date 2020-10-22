@@ -1,8 +1,11 @@
 import React from 'react';
 import './App.css';
 import { urlBase64ToUint8Array } from "./utilities"
+import * as serviceWorker from './serviceWorker';
 
+//
 // askNotificationPermission function to ask for permission when the "Enable notifications" button is clicked
+//
 function handleOnClickEnablePushNotifications() {
 
     // Let's check if the browser supports notifications
@@ -19,7 +22,10 @@ function handleOnClickEnablePushNotifications() {
     }
 }
 
-function handleOnSendNotification() {
+//
+// Subscribe and let backend know the subscription details
+//
+function subscribeToPushNotifications() {
     if (!('serviceWorker' in navigator)) {
         console.log('Eeek no sw in nav')
         return
@@ -47,11 +53,11 @@ function handleOnSendNotification() {
                 return sub
                 //                throw new Error('Already have a sub')
             }
-
         })
         .then(newSubscription => {
             console.log('newsub:', JSON.stringify(newSubscription))
             postNotificationSubscription(newSubscription)
+            serviceWorker.listenForPushNotifications()
         })
         .catch(err => {
             console.log("Error in subscription: ", err)
@@ -71,8 +77,11 @@ function handleOnSendNotification() {
 //     })
 // }
 
+//
+// Send to backend
+//
 function postNotificationSubscription(subscription) {
-    fetch('https://2a64bafaa900.ngrok.io/subscription', {
+    fetch('http://localhost:8080/subscription', {
         method: 'POST',
         // mode: 'no-cors',
         headers: {
@@ -98,9 +107,9 @@ function App() {
         <div className="App">
             <h1>Hello</h1>
             <button disabled={Notification.permission === 'granted' || Notification.permission === 'denied'} onClick={() => handleOnClickEnablePushNotifications()}>Allow Push Notifications</button>
-            <button disabled={Notification.permission !== 'granted'} onClick={() => handleOnSendNotification("Hello World!")}>Push a Notification</button>
+            {/* <button disabled={Notification.permission !== 'granted'} onClick={() => handleOnSendNotification("Hello World!")}>Push a Notification</button> */}
             <button disabled={Notification.permission !== 'denied'}>Eish! It seems like you have denied receiving notifications. See here for how to undo this.</button>
-            <button onClick={() => handleOnSendNotification()}>Try Post</button>
+            <button onClick={() => subscribeToPushNotifications()}>Subscribe to Push Notifications</button>
         </div>
     );
 }

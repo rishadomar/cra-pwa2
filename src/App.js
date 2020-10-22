@@ -72,7 +72,7 @@ function handleOnSendNotification() {
 // }
 
 function postNotificationSubscription(subscription) {
-    fetch('http://localhost:8080/subscription', {
+    fetch('https://2a64bafaa900.ngrok.io/subscription', {
         method: 'POST',
         // mode: 'no-cors',
         headers: {
